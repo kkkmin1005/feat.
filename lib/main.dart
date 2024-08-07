@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'ootd.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,7 +44,7 @@ class CalenderAppBar extends StatelessWidget {
           children: [
             Container(
                 margin: EdgeInsets.fromLTRB(20, 30, 10, 30),
-                child: Icon(Icons.arrow_back_rounded, size: 27)
+                child: IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back_rounded), iconSize: 27)
             ),
             Container(
               margin:EdgeInsets.fromLTRB(10, 30, 7, 30),
@@ -54,7 +55,7 @@ class CalenderAppBar extends StatelessWidget {
             ),
             Container(
               margin: EdgeInsets.fromLTRB(7, 30, 10, 30),
-              child: Icon(Icons.star_border_purple500_outlined, size: 27)
+              child: IconButton(onPressed: (){}, icon: Icon(Icons.star_border_purple500_outlined), iconSize: 27)
             )
           ],
         ),
@@ -64,10 +65,34 @@ class CalenderAppBar extends StatelessWidget {
 }
 
 class CalenderDate extends StatefulWidget {
-  CalenderDate({Key? key, this.day}) : super(key:key);
+  CalenderDate({Key? key, this.day, this.year, this.month}) : super(key:key);
 
   final now = DateTime.now;
   var day;
+  var year;
+  var month;
+
+  dayModify(day){
+    if((day ~/ 10) < 1){
+      return '0'+ day.toString();
+    }
+    else{
+      return day.toString();
+    }
+  }
+
+  monthModify(month){
+    if((month ~/ 10) < 1){
+      return '0'+ month.toString();
+    }
+    else{
+      return month.toString();
+    }
+  }
+
+  yearModify(year){
+    return year.toString();
+  }
 
   @override
   State<CalenderDate> createState() => _CalenderDate();
@@ -85,15 +110,24 @@ class _CalenderDate extends State<CalenderDate> {
           );
     }
     else{
-      return Container(
-          width: 50, height: 50,
-          child: Align
-            (
-              child: Text(widget.day.toString(), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-              alignment: Alignment.center
-            ),
-          margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.white)
+      return GestureDetector(
+        onTap: (){
+          Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ootdHomePage())
+          );
+          print(widget.yearModify(widget.year) + widget.monthModify(widget.month) + widget.dayModify(widget.day));
+        },
+        child: Container(
+            width: 50, height: 50,
+            child: Align
+              (
+                child: Text(widget.day.toString(), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
+                alignment: Alignment.center
+              ),
+            margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.white)
+        ),
       );
     }
   }
@@ -244,7 +278,7 @@ class _CalendarDateGridViewState extends State<CalendarDateGridView> {
               return CalenderDate(day: 0);
             }
             else{
-              return CalenderDate(day: day);
+              return CalenderDate(day: day, year: year, month: month);
             }
           }
           else{
