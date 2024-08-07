@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'ootd.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +18,7 @@ class MyApp extends StatelessWidget {
         ),
         body: Container(
           color: Colors.white,
-          child: ListView.builder(
-              itemCount: 12,
-              itemBuilder: (context, index){
-                return CalenderHomePage(index: index);
-              }
-          ),
+          child: CalenderHomePage()
         )
       ),
     );
@@ -114,7 +109,7 @@ class _CalenderDate extends State<CalenderDate> {
         onTap: (){
           Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ootdHomePage())
+              MaterialPageRoute(builder: (context) => ootdHomePage(year: widget.yearModify(widget.year), month:widget.monthModify(widget.month), day: widget.dayModify(widget.day)))
           );
           print(widget.yearModify(widget.year) + widget.monthModify(widget.month) + widget.dayModify(widget.day));
         },
@@ -135,16 +130,51 @@ class _CalenderDate extends State<CalenderDate> {
 
 
 class CalenderHomePage extends StatefulWidget {
-  CalenderHomePage({Key ? key, this.index}) : super(key:key);
+  CalenderHomePage({Key ? key}) : super(key:key);
 
   final now = DateTime.now();
-  var index;
+  var startYear = 2024;
+  var startMonth = 6;
+
 
   @override
   State<CalenderHomePage> createState() => _CalenderHomePageState();
 }
 
 class _CalenderHomePageState extends State<CalenderHomePage> {
+
+  var scroll = ScrollController();
+
+  searchTargetIndex(startDate, nowDate){
+    //달력 하나 위젯 크기 알아내서 인덱스 차에 곱하기 466.5
+    // state 전송 필요 x
+    // init 스테이트에서 타겟 인덱스 잡아주고 진행하기
+
+    var gap;
+
+    if(startDate[0] == nowDate[0]){
+      gap = nowDate[1] - startDate[1];
+    }
+    else{
+      gap = (nowDate[0] - startDate[0])*12 + (nowDate[1] - startDate[1]);
+    }
+
+    return gap * 466.7;
+  }
+
+  void scrollToPosition(gap){
+    scroll.animateTo(gap, duration: Duration(seconds: 1), curve: Curves.easeInOut);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      double targetPosition = searchTargetIndex(
+          [widget.startYear, widget.startMonth], [widget.now.year, widget.now.month]);
+      scrollToPosition(targetPosition);
+    });
+  }
 
   yearAndMonth(int plusmonth, int year, int month){
 
@@ -162,18 +192,24 @@ class _CalenderHomePageState extends State<CalenderHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Align(
-        child: Container(
-            child: Text(yearAndMonth(widget.index, widget.now.year, widget.now.month)[0].toString() + '__' + yearAndMonth(widget.index, widget.now.year, widget.now.month)[1].toString() , style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600)),
-            margin: EdgeInsets.fromLTRB(20, 30, 0, 10),
-            decoration: BoxDecoration(color: Colors.white),
-            ),
-        alignment: Alignment.topLeft
-      ),
-      SizedBox(child: CalendarBar(), width: 450, height: 70),
-      SizedBox(child: CalendarDateGridView(index: widget.index), width: 450, height: 340)
-    ]
+    return ListView.builder(
+      itemCount: 12,
+      controller: scroll,
+      itemBuilder: (context, index){
+        return Column(children: [
+          Align(
+              child: Container(
+                child: Text(yearAndMonth(index, widget.startYear, widget.startMonth)[0].toString() + '__' + yearAndMonth(index, widget.startYear, widget.startMonth)[1].toString() , style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600)),
+                margin: EdgeInsets.fromLTRB(20, 30, 0, 10),
+                decoration: BoxDecoration(color: Colors.white),
+              ),
+              alignment: Alignment.topLeft
+          ),
+          SizedBox(child: CalendarBar(), width: 450, height: 70),
+          SizedBox(child: CalendarDateGridView(index: index), width: 450, height: 340)
+        ]
+        );
+      }
     );
   }
 }
@@ -186,6 +222,8 @@ class CalendarDateGridView extends StatefulWidget {
   CalendarDateGridView({Key? key, this.index}) : super(key:key);
 
   var index;
+  var startYear = 2024;
+  var startMonth = 6;
 
   @override
   State<CalendarDateGridView> createState() => _CalendarDateGridViewState();
@@ -254,8 +292,8 @@ class _CalendarDateGridViewState extends State<CalendarDateGridView> {
   @override
   void initState() {
     super.initState();
-    year = yearAndMonth(widget.index, now.year, now.month)[0];
-    month = yearAndMonth(widget.index, now.year, now.month)[1];
+    year = yearAndMonth(widget.index, widget.startYear, widget.startMonth)[0];
+    month = yearAndMonth(widget.index, widget.startYear, widget.startMonth)[1];
   }
 
   @override

@@ -6,14 +6,18 @@ void main() {
 }
 
 class ootdHomePage extends StatelessWidget {
-  ootdHomePage({super.key});
+  ootdHomePage({Key? key, this.year, this.month, this.day}) : super(key:key);
+
+  var year;
+  var month;
+  var day;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: PreferredSize(child: MainAppBar(), preferredSize: Size.fromHeight(200)),
-        body: ootdBody(),
+        body: ootdBody(year: year, month: month, day: day),
       ),
     );
   }
@@ -21,7 +25,11 @@ class ootdHomePage extends StatelessWidget {
 
 
 class ootdBody extends StatelessWidget {
-  ootdBody({super.key});
+  ootdBody({Key? key, this.year, this.month, this.day}) : super(key:key);
+
+  var year;
+  var month;
+  var day;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +41,7 @@ class ootdBody extends StatelessWidget {
             children: [
               Container(
                 margin: EdgeInsets.fromLTRB(27, 10, 0, 10),
-                child: Text('2024. 08. 06', style: TextStyle(fontSize: 22))),
+                child: Text(year.toString() +'. '+month.toString()+'. '+day.toString(), style: TextStyle(fontSize: 22))),
               Spacer()
             ],
           ),
